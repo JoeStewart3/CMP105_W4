@@ -5,13 +5,34 @@ Level::Level(sf::RenderWindow* hwnd, Input* in)
 	window = hwnd;
 	input = in;
 
+	// hide windows cursor
+	window->setMouseCursorVisible(false);
+
 	// initialise game objects
-	texture.loadFromFile("gfx/Mushroom.png");
+	Background.texture.loadFromFile("gfx/Level1_1.png");
+	Cursor.texture.loadFromFile("gfx/Icon.png");
+	PlayerObject.texture.loadFromFile("gfx/Mushroom.png");
+	Goomba.texture.loadFromFile("gfx/Goomba.png");
+	Sonic.texture.loadFromFile("gfx/Sonic.png");
 
-	testSprite.setTexture(&texture);
-	testSprite.setSize(sf::Vector2f(100, 100));
-	testSprite.setPosition(100, 100);
+	Background.setTexture(&Background.texture);
+	Background.setSize(sf::Vector2f(11038, 675));
 
+	Cursor.setTexture(&Cursor.texture);
+	Cursor.setSize(sf::Vector2f(50, 50));
+
+	PlayerObject.setTexture(&PlayerObject.texture);
+	PlayerObject.setSize(sf::Vector2f(100, 100));
+	PlayerObject.setPosition(600, 300);
+	PlayerObject.setInput(input);
+
+	Goomba.setTexture(&Goomba.texture);
+	Goomba.setSize(sf::Vector2f(100, 100));
+	Goomba.setPosition(200, 200);
+
+	Sonic.setTexture(&Sonic.texture);
+	Sonic.setSize(sf::Vector2f(100, 100));
+	Sonic.setPosition(400, 200);
 }
 
 Level::~Level()
@@ -27,13 +48,19 @@ void Level::handleInput(float dt)
 	{
 		window->close();
 	}
-
+	
+	PlayerObject.handleInput(dt);
 }
 
 // Update game objects
 void Level::update(float dt)
 {
-	
+	sf::Vector2f PlayerPos = PlayerObject.getTransform().transformPoint(PlayerObject.getPoint(0));
+	sf::Vector2u windowSize = window->getSize();
+	Background.update(window, input, PlayerPos.x, PlayerPos.y);
+	Goomba.moveGoomba(dt, windowSize);
+	Sonic.moveGoomba(dt, windowSize);
+	Cursor.update(input);
 }
 
 // Render level
@@ -41,7 +68,11 @@ void Level::render()
 {
 	beginDraw();
 
-	window->draw(testSprite);
+	window->draw(Background);
+	window->draw(PlayerObject);
+	window->draw(Goomba);
+	window->draw(Sonic);
+	window->draw(Cursor);
 
 	endDraw();
 }
@@ -49,7 +80,7 @@ void Level::render()
 // clear back buffer
 void Level::beginDraw()
 {
-	window->clear(sf::Color(100, 149, 237));
+	window->clear(sf::Color::White);
 }
 
 // Ends rendering to the back buffer, and swaps buffer to the screen.
